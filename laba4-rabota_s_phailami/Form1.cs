@@ -16,9 +16,11 @@ namespace laba4_rabota_s_phailami
 {
     public partial class Form1 : Form
     {
-        List<int> Mas = new List<int>();
+        List<int[]> Mas = new List<int[]>();
         int maxy, count;
         private bool working = false;
+
+        
        
         public Form1()
         {
@@ -32,10 +34,15 @@ namespace laba4_rabota_s_phailami
             Random r = new Random();
             count = r.Next(5, 20);
             Mas.Clear();
-            for (int i = 0; i < count; i++)  Mas.Add(r.Next(-1000, 1000));
-            
-            maxy = (Mas.Max());
-            if (maxy < (int)Math.Abs(Mas.Min())) maxy = (int)Math.Abs(Mas.Min());
+            int [] temp = new int[4];
+            maxy = -1000;
+            for (int i = 0; i < count; i++)
+            {
+                temp[0] = r.Next(-1000, 1000);
+                for (var j = 1; j <= 3; j++) temp[j] = r.Next(255);
+                if (temp[0] > maxy) maxy = temp[0];
+            }
+            Mas.Add(temp);
 
             Invalidate();
         }
@@ -60,20 +67,24 @@ namespace laba4_rabota_s_phailami
 
             if (working)
             {
-                for (var i = 0; i < count; i++)
+                for (var i = 0; i < Mas.Count; i++)
                 {
+
+                    int[] temp = new int[4]; 
+                    temp = Mas[i];
                     float width = step / 2;
-                    br.Color = Color.FromArgb(rn.Next(255), rn.Next(255), rn.Next(255));
-                    ss = e.Graphics.MeasureString(Mas[i].ToString(), stringFont);
-                    if (Mas[i] < 0)
+                    br.Color = Color.FromArgb(temp[1],temp[2],temp[3]);
+                    ss = e.Graphics.MeasureString(temp[0].ToString(), stringFont);
+
+                    if (temp[0] < 0)
                     {
-                        g.FillRectangle(br,(i + 0.5f)*step,1f,width,-1f*Mas[i]*k);
-                        g.DrawString(Mas[i].ToString(), stringFont, new SolidBrush(Color.Black), new PointF((i + 0.75f)*step-ss.Width/2, -(Mas[i]*k)));
+                        g.FillRectangle(br,(i + 0.5f)*step,1f,width,-1f*temp[0]*k);
+                        g.DrawString(temp[0].ToString(), stringFont, new SolidBrush(Color.Black), new PointF((i + 0.75f)*step-ss.Width/2, -(temp[0]*k)));
                     }
-                    if (Mas[i] >= 0)
+                    if (temp[0] >= 0)
                     {
-                        g.FillRectangle(br,(i + 0.5f)*step,((-1)*Mas[i]*k)-1,width,Mas[i]*k);
-                        g.DrawString(Mas[i].ToString(), stringFont, new SolidBrush(Color.Black), new PointF((i + 0.75f)*step-ss.Width/2, -(Mas[i]*k+15)));
+                        g.FillRectangle(br,(i + 0.5f)*step,((-1)*temp[0]*k)-1,width,temp[0]*k);
+                        g.DrawString(temp[0].ToString(), stringFont, new SolidBrush(Color.Black), new PointF((i + 0.75f)*step-ss.Width/2, -(temp[0]*k+15)));
                     }
                 }
 
@@ -110,12 +121,17 @@ namespace laba4_rabota_s_phailami
             StreamReader file = new StreamReader(path, Encoding.Default);
             string line;
             Mas.Clear();
+            maxy = -1000;
             while ((line = file.ReadLine()) != null)
             {
                 string[] numb = line.Split(':');
-                //for(var i =0;i < 4; i++)  
-                //Mas.Add(line);
+                int[] temp = new int[4];
+                for (int i = 0; i < 4; i++) temp[i] = Convert.ToInt32(numb[i]);
+                if (temp[0] > maxy) maxy = temp[0];
+                Mas.Add(temp);
             }
+
+            Invalidate();
         }
 
         private void button3_Click(object sender, EventArgs e)
