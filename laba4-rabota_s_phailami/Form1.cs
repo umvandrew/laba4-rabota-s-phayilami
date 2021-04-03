@@ -16,9 +16,20 @@ namespace laba4_rabota_s_phailami
 {
     public partial class Form1 : Form
     {
-        List<int> Mas = new List<int>();
-        int maxy, count;
-        private bool working = false;
+        private List<Graph> Mass = new List<Graph>();
+        private int maxy, count;
+
+        private class Graph
+        {
+            internal int Higth { get; set; }
+            internal Color Color { get; }
+
+            public Graph(int higth, int R, int G, int B)
+            {
+                Higth = higth;
+                Color = Color.FromArgb(R, G, B);
+            }
+        }
        
         public Form1()
         {
@@ -28,16 +39,30 @@ namespace laba4_rabota_s_phailami
 
         private void button1_Click(object sender, EventArgs e)
         {
-            working = true;
             Random r = new Random();
             count = r.Next(5, 20);
-            Mas.Clear();
-            for (int i = 0; i < count; i++)  Mas.Add(r.Next(-1000, 1000));
+            Mass.Clear();
+            maxy = 0;
             
-            maxy = (Mas.Max());
-            if (maxy < (int)Math.Abs(Mas.Min())) maxy = (int)Math.Abs(Mas.Min());
+            for (int i = 0; i < count; i++)
+            {
+                Graph temp = new Graph(r.Next(-1000, 1000),r.Next(255),r.Next(255),r.Next(255));
+                Mass.Add(temp);
+                if (Math.Abs(temp.Higth) > maxy) maxy = Math.Abs(temp.Higth);
+            }
 
             Invalidate();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Read("Data1.txt");
+            Invalidate();
+        }
+        
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Write("Data2.txt");
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
@@ -50,7 +75,7 @@ namespace laba4_rabota_s_phailami
             g.DrawLine(new Pen(Color.Black, 2f), 0, -250, 0, 250);
             g.DrawLine(new Pen(Color.Black, 2f), 0, 0, 1000, 0);
             
-            float step = 1000f / (float)count;
+            float step = 1000f / (float)Mass.Count;
             float k = Math.Abs(250f / (float)maxy);
             
             Random rn = new Random();
@@ -58,27 +83,23 @@ namespace laba4_rabota_s_phailami
             Font stringFont = new Font("Times New Roman", 10, FontStyle.Regular);
             SizeF ss = new SizeF();
 
-            if (working)
+            for (var i = 0; i < Mass.Count; i++)
             {
-                for (var i = 0; i < count; i++)
+                float width = step / 2;
+                br.Color = Mass[i].Color;
+                ss = e.Graphics.MeasureString((Mass[i].Higth).ToString(), stringFont);
+                if (Mass[i].Higth < 0)
                 {
-                    float width = step / 2;
-                    br.Color = Color.FromArgb(rn.Next(255), rn.Next(255), rn.Next(255));
-                    ss = e.Graphics.MeasureString(Mas[i].ToString(), stringFont);
-                    if (Mas[i] < 0)
-                    {
-                        g.FillRectangle(br,(i + 0.5f)*step,1f,width,-1f*Mas[i]*k);
-                        g.DrawString(Mas[i].ToString(), stringFont, new SolidBrush(Color.Black), new PointF((i + 0.75f)*step-ss.Width/2, -(Mas[i]*k)));
-                    }
-                    if (Mas[i] >= 0)
-                    {
-                        g.FillRectangle(br,(i + 0.5f)*step,((-1)*Mas[i]*k)-1,width,Mas[i]*k);
-                        g.DrawString(Mas[i].ToString(), stringFont, new SolidBrush(Color.Black), new PointF((i + 0.75f)*step-ss.Width/2, -(Mas[i]*k+15)));
-                    }
+                    g.FillRectangle(br,(i + 0.5f)*step,1f,width,-1f*Mass[i].Higth*k);
+                    g.DrawString((Mass[i].Higth).ToString(), stringFont, new SolidBrush(Color.Black), new PointF((i + 0.75f)*step-ss.Width/2, -(Mass[i].Higth*k)));
                 }
-
-                working = false;
+                if (Mass[i].Higth >= 0)
+                {
+                    g.FillRectangle(br,(i + 0.5f)*step,((-1)*Mass[i].Higth*k)-1,width,Mass[i].Higth*k);
+                    g.DrawString((Mass[i].Higth).ToString(), stringFont, new SolidBrush(Color.Black), new PointF((i + 0.75f)*step-ss.Width/2, -(Mass[i].Higth*k+15)));
+                }
             }
+
             
         }
 
@@ -96,7 +117,7 @@ namespace laba4_rabota_s_phailami
                 for (var k = 0; k < 3; k++)
                 {
                     sb.Append((r.Next(255)).ToString());
-                    sb.Append(":");
+                    if (k != 2)sb.Append(":") ;
                 }
                 cr.Write(sb+ "\n");
                 sb.Clear();
@@ -105,22 +126,41 @@ namespace laba4_rabota_s_phailami
             cr.Close();
         }
 
+        void Write(string path)
+        {
+            StreamWriter cr = new StreamWriter(path);
+            
+            var sb = new StringBuilder();
+            for (int i = 0; i < Mass.Count; i++)
+            {
+                sb.Append((Mass[i].Higth).ToString());
+                sb.Append(":");
+                sb.Append(Mass[i].Color.R.ToString());
+                sb.Append(":") ;
+                sb.Append(Mass[i].Color.G.ToString());
+                sb.Append(":") ;
+                sb.Append(Mass[i].Color.B.ToString());
+                cr.Write(sb+ "\n");
+                sb.Clear();
+            }
+
+            cr.Close();
+        }
+        
         void Read(string path)
         {
             StreamReader file = new StreamReader(path, Encoding.Default);
             string line;
-            Mas.Clear();
+            Mass.Clear();
+            maxy = 0;
             while ((line = file.ReadLine()) != null)
             {
                 string[] numb = line.Split(':');
-                //for(var i =0;i < 4; i++)  
-                //Mas.Add(line);
+                Graph temp = new Graph(int.Parse(numb[0]),int.Parse(numb[1]),int.Parse(numb[2]),int.Parse(numb[3]));
+                Mass.Add(temp);
+                if (Math.Abs(temp.Higth) > maxy) maxy = Math.Abs(temp.Higth);
             }
         }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            Create("Data2.txt");
-        }
+        
     }
 }
