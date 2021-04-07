@@ -103,7 +103,7 @@ namespace laba4_rabota_s_phailami
             
         }
 
-        void Create(string path)
+        void Create(string path) //создание рандомных данных и запись их в файл 
         {
             Random r = new Random();
             count = r.Next(5, 20);
@@ -126,7 +126,7 @@ namespace laba4_rabota_s_phailami
             cr.Close();
         }
 
-        void Write(string path)
+        void Write(string path) //запись данных на экране в файл "Data2.txt"
         {
             StreamWriter cr = new StreamWriter(path);
             
@@ -147,7 +147,7 @@ namespace laba4_rabota_s_phailami
             cr.Close();
         }
         
-        void Read(string path)
+        void Read(string path) //чтение данных из файла 
         {
             StreamReader file = new StreamReader(path, Encoding.Default);
             string line;
